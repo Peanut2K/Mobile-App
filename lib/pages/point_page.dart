@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PointPage extends StatelessWidget {
-  const PointPage({Key? key}) : super(key: key);
+  const PointPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class PointPage extends StatelessWidget {
 class CircularPercent extends StatelessWidget {
   final String category;
   final double percent;
-  const CircularPercent({Key? key, required this.category, required this.percent}) : super(key: key);
+  const CircularPercent({super.key, required this.category, required this.percent});
 
   @override
   Widget build(BuildContext context) {

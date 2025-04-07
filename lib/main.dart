@@ -14,7 +14,7 @@ void main() {
 }
 
 class WastePointApp extends StatelessWidget {
-  const WastePointApp({Key? key}) : super(key: key);
+  const WastePointApp({super.key});
 
   @override
   Widget build(BuildContext context) {

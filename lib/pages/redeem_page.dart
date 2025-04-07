@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class RedeemPage extends StatelessWidget {
-  const RedeemPage({Key? key}) : super(key: key);
+  const RedeemPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class RedeemPage extends StatelessWidget {
 class RewardItem extends StatelessWidget {
   final String name;
   final int cost;
-  const RewardItem({Key? key, required this.name, required this.cost}) : super(key: key);
+  const RewardItem({super.key, required this.name, required this.cost});
 
   @override
   Widget build(BuildContext context) {

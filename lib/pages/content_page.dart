@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ContentsPage extends StatelessWidget {
-  const ContentsPage({Key? key}) : super(key: key);
+  const ContentsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +35,10 @@ class ContentItem extends StatelessWidget {
   final String title;
   final String subtitle;
   const ContentItem({
-    Key? key, 
+    super.key, 
     required this.title, 
     required this.subtitle
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
