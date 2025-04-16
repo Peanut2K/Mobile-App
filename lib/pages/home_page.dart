@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'scan_page.dart';
 import 'redeem_page.dart';
 
+
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
 

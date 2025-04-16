@@ -9,6 +9,8 @@ import 'pages/redeem_page.dart';
 import 'pages/content_page.dart';
 import 'pages/setting_page.dart';
 
+
+
 void main() {
   runApp(const WastePointApp());
 }
