@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FirstPage extends StatelessWidget {
-  const FirstPage({Key? key}) : super(key: key);
+  const FirstPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +73,7 @@ class FirstPage extends StatelessWidget {
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: creamColor, width: 2),
-                  foregroundColor: creamColor, // สีตัวอักษร
+                  foregroundColor: creamColor,
                   textStyle: const TextStyle(fontSize: 18),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(

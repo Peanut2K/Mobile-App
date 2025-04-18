@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import '../models/user.dart';
+import '../services/firestore_service.dart';
 import 'scan_page.dart';
 import 'redeem_page.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+  final String userId;
+  const MainPage({required this.userId, super.key});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -12,22 +17,17 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
 
-  final pages = [
-    const HomeView(),
-    const ScanPage(),
-    const RedeemPage(),
-  ];
-
-  void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    final pages = [
+      HomeView(userId: widget.userId),
+      ScanPage(userId: widget.userId),
+      RedeemPage(userId: widget.userId),
+    ];
+
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'WastePoint',
           style: TextStyle(
@@ -36,45 +36,33 @@ class _MainPageState extends State<MainPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: const Color(0xFF445D44),
-        iconTheme: const IconThemeData(
-          color: Color(0xFFF2D9BB),
-        ),
+        backgroundColor: const Color(0xFF3B5F41),
+        iconTheme: const IconThemeData(color: Color(0xFFF2D9BB)),
         actions: [
           IconButton(
+            icon: const Icon(Icons.settings, color: Color(0xFFF2D9BB)),
             onPressed: () {
-              Navigator.pushNamed(context, '/setting');
+              Navigator.pushNamed(
+                context,
+                '/setting',
+                arguments: widget.userId,
+              );
             },
-            icon: const Icon(
-              Icons.settings,
-              color: Color(0xFFF2D9BB),
-            ),
           ),
         ],
       ),
       body: pages[_currentIndex],
-
-      backgroundColor: const Color(0xFF445D44),
-
+      backgroundColor: const Color(0xFF3B5F41),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: _onTabTapped,
+        onTap: (i) => setState(() => _currentIndex = i),
         backgroundColor: const Color(0xFFF2D9BB),
         selectedItemColor: const Color(0xFF445D44),
         unselectedItemColor: Colors.grey[600],
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_scanner),
-            label: 'Scan',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.card_giftcard),
-            label: 'Redeem',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner), label: 'Scan'),
+          BottomNavigationBarItem(icon: Icon(Icons.card_giftcard), label: 'Redeem'),
         ],
       ),
     );
@@ -82,67 +70,58 @@ class _MainPageState extends State<MainPage> {
 }
 
 class HomeView extends StatelessWidget {
-  const HomeView({Key? key}) : super(key: key);
+  final String userId;
+  const HomeView({required this.userId, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(color: const Color(0xFF445D44)),
+    return FutureBuilder<UserModel?>(
+      future: FirestoreService().getUserById(userId),
+      builder: (ctx, snap) {
+        if (snap.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final user = snap.data;
+        if (user == null) {
+          return const Center(
+            child: Text('User not found', style: TextStyle(color: Colors.white)),
+          );
+        }
 
-        Positioned(
-          top: -80,
-          right: -80,
-          child: Container(
-            width: 200,
-            height: 200,
-            decoration: const BoxDecoration(
-              color: Color(0xFF3B5F41),
-              shape: BoxShape.circle,
-            ),
-          ),
-        ),
-
-        SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const CircleAvatar(
-                    radius: 35,
-                    backgroundImage: AssetImage('assets/images/profile.png'),
-                  ),
-                  const SizedBox(width: 16),
+                  Image.asset('assets/images/Profile.png', width: 75, height: 75),
+                  const SizedBox(width: 20),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
-                        'Sapon!',
-                        style: TextStyle(
+                        user.username,
+                        style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFFF2D9BB),
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
-                        'Faculty of Information\nand Communication Technology',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFFF2D9BB),
-                        ),
+                        user.mobileNumber,
+                        style: const TextStyle(fontSize: 14, color: Color(0xFFF2D9BB)),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
 
               const SizedBox(height: 24),
 
               Container(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF2D9BB),
                   borderRadius: BorderRadius.circular(12),
@@ -152,41 +131,38 @@ class HomeView extends StatelessWidget {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
-                            '500g',
-                            style: TextStyle(
+                            '${user.savedCarbon}g',
+                            style: const TextStyle(
                               fontSize: 34,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF445D44),
                             ),
                           ),
-                          Text(
+                          const Text(
                             'saved Carbon',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFF445D44),
-                            ),
+                            style: TextStyle(fontSize: 16, color: Color(0xFF445D44)),
                           ),
                         ],
                       ),
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
-                      children: const [
+                      children: [
                         Text(
-                          '343 points',
-                          style: TextStyle(
-                            fontSize: 16,
+                          '${user.points} points',
+                          style: const TextStyle(
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF445D44),
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
-                          '43 recycled',
-                          style: TextStyle(
-                            fontSize: 16,
+                          '${user.recycledAmount} recycled',
+                          style: const TextStyle(
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF445D44),
                           ),
@@ -203,72 +179,71 @@ class HomeView extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'nearby bin stations',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFFF2D9BB),
-                  ),
+                  style: TextStyle(fontSize: 16, color: Color(0xFFF2D9BB)),
                 ),
               ),
               const SizedBox(height: 8),
-              Container(
+              SizedBox(
                 height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.white54,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Center(
-                  child: Text('Map Placeholder'),
+                child: FlutterMap(
+                  options: MapOptions(
+                    center: LatLng(13.7563, 100.5018),
+                    zoom: 13,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      subdomains: const ['a', 'b', 'c'],
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          width: 30,
+                          height: 30,
+                          point: LatLng(13.7563, 100.5018),
+                          builder: (_) => const Icon(Icons.location_on, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
 
               const SizedBox(height: 24),
 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF2D9BB),
-                    foregroundColor: const Color(0xFF445D44),
-                    textStyle: const TextStyle(fontSize: 16),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/point');
-                  },
-                  child: const Text('My Points',
-                  style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF2D9BB),
+                  foregroundColor: const Color(0xFF445D44),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/point', arguments: userId);
+                },
+                child: const Text(
+                  'My Points',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
-
               const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF2D9BB),
-                    foregroundColor: const Color(0xFF445D44),
-                    textStyle: const TextStyle(fontSize: 16),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/contents');
-                  },
-                  child: const Text('Our Contents',
-                  style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF2D9BB),
+                  foregroundColor: const Color(0xFF445D44),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/contents', arguments: userId);
+                },
+                child: const Text(
+                  'Our Contents',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }
