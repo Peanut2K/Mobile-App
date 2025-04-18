@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1097165020508",
+    "project_id": "wastepoint-5a488",
+    "storage_bucket": "wastepoint-5a488.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097165020508:android:e0e9bac8ca70003ce5f599",
+        "android_client_info": {
+          "package_name": "com.example.mobile_app_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAveCHn9jS2lkBb_GoGWnPAIatmbSYNAtA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
